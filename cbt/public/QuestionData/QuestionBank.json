@@ -1,0 +1,88 @@
+{
+  "total_subject": 3,
+  "subject_names": ["Math", "Science", "History"],
+  "questions": {
+    "Math": {
+      "total_question": 10,
+      "question_list": [
+       
+
+  {
+    "question_id": 1,
+    "question": "What is 2 + 2?",
+    "options": ["3", "4", "5", "6"]
+  },
+  {
+    "question_id": 2,
+    "question": "What is the square root of 16?",
+    "options": ["2", "4", "6", "8"]
+  },
+  {
+    "question_id": 3,
+    "question": "Which planet is known as the Red Planet?",
+    "options": ["Venus", "Mars", "Jupiter", "Saturn"]
+  },
+  {
+    "question_id": 4,
+    "question": "What is the capital of France?",
+    "options": ["London", "Berlin", "Paris", "Madrid"]
+  },
+  {
+    "question_id": 5,
+    "question": "Which gas do plants absorb from the atmosphere?",
+    "options": ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"]
+  },
+  {
+    "question_id": 6,
+    "question": "Who painted the Mona Lisa?",
+    "options": ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"]
+  },
+  {
+    "question_id": 7,
+    "question": "What is the largest mammal on Earth?",
+    "options": ["Elephant", "Blue Whale", "Giraffe", "Polar Bear"]
+  },
+  {
+    "question_id": 8,
+    "question": "Which element has the chemical symbol 'O'?",
+    "options": ["Gold", "Oxygen", "Osmium", "Oganesson"]
+  },
+  {
+    "question_id": 9,
+    "question": "In which year did World War II end?",
+    "options": ["1939", "1945", "1950", "1941"]
+  },
+  {
+    "question_id": 10,
+    "question": "What is the main component of the Sun?",
+    "options": ["Liquid Lava", "Hydrogen", "Helium", "Plasma"]
+  }
+      ]
+    },
+    "Science": {
+      "total_question": 2,
+      "question_list": [
+        {
+          "question_id": 1,
+          "question": "What is the chemical symbol for water?",
+          "options": ["H2O", "CO2", "NaCl", "O2"]
+        },
+        {
+          "question_id": 2,
+          "question": "Which planet is known as the Red Planet?",
+          "options": ["Venus", "Mars", "Jupiter", "Saturn"]
+        }
+      ]
+    },
+    "History": {
+      "total_question": 1,
+      "question_list": [
+        {
+          "question_id": 1,
+          "question": "In which year did World War II end?",
+          "options": ["1943", "1945", "1947", "1950"]
+        }
+      ]
+    }
+  }
+}
