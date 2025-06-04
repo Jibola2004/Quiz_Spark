@@ -19,7 +19,10 @@ type QuizData = {
     [subject: string]: SubjectQuestions;
   };
 };
-
+type SubjectWithCount = {
+  name: string;
+  count: number;
+};
 //type StudentAnswer = {
   //question_id: number;
   //answer: string;
@@ -49,7 +52,10 @@ type QuestionBankContextType = {
   loading: boolean;
   error?: Error;
   submitAnswers: (answers: QuizSubmission) => Promise<void>;
+  setSubjects: (subjects: SubjectWithCount[]) => void;
 };
+
+
 
 const QuestionBankContext = createContext<QuestionBankContextType | null>(null);
 
@@ -57,12 +63,19 @@ export function QuestionBankProvider({ children }: { children: ReactNode }) {
   const [quiz, setQuiz] = useState<QuizData>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error>();
+  const [subjects, setSubjects] = useState<SubjectWithCount[]>([]);
 
   useEffect(() => {
+     if (subjects.length === 0) {
+    // Don't load quiz if subjects list is empty
+    return;
+  }
     const loadQuiz = async () => {
       try {
         setLoading(true);
-        const response = await axios.get<QuizData>('/QuestionData/QuestionBank.json');
+        const response = await axios.post<QuizData>('http://localhost:3000/api/quiz/custom', {
+                   subjects
+                    });
         setQuiz(response.data);
       } catch (err) {
         console.error('Failed to load quiz:', err);
@@ -73,7 +86,9 @@ export function QuestionBankProvider({ children }: { children: ReactNode }) {
     };
 
     loadQuiz();
-  }, []);
+  }, [subjects]);
+
+
 
   const submitAnswers = async (answers: QuizSubmission) => {
     try {
@@ -87,7 +102,7 @@ export function QuestionBankProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <QuestionBankContext.Provider value={{ quiz, loading, error, submitAnswers }}>
+    <QuestionBankContext.Provider value={{ quiz, loading, error, submitAnswers,setSubjects }}>
       {children}
     </QuestionBankContext.Provider>
   );

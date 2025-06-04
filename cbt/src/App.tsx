@@ -5,11 +5,13 @@ import { BrowserRouter as Router,Routes,Route } from "react-router";
 import HomePage from "./pages/HomePage";
 import ExitPage from "./pages/ExitPage";
 import NotFound from "./pages/NotFound";
+import { Toaster } from 'sonner';
 const App = () => {
   return (
     <Router>
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <QuestionBankProvider>
+         <Toaster position="top-right" richColors />
         <Routes>
            <Route path="/" element={<HomePage />} />
            <Route path="/exam" element={<ExamPage />} />

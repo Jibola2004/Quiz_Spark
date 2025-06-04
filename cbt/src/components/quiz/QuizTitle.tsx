@@ -7,12 +7,12 @@ import Timer from '../Timer'
 
 const QuizTitle = ({state}:{state:object}) => {
   type LocationState = {
-  value: number;
+  timer: number;
 };
  const typedState = state as LocationState | null;
 
-  const value = typedState?.value || 0;
-  
+  const value = typedState?.timer || 0;
+  console.log('time:',value)
 
   
   return (

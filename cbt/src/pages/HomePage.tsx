@@ -1,4 +1,3 @@
-// Home.tsx
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,42 +23,64 @@ import {
 } from "@/components/ui/select";
 import { useNavigate } from "react-router";
 import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
+import { useQuestionBank } from '@/contexts/questions-context';
 
-const formSchema = z.object({
-  timer: z.number().min(0, "Timer must be greater than 0"),
-  items: z.array(z.string()).optional(),
+// Schema for each subject with count
+const subjectSchema = z.object({
+  name: z.string(),
+  count: z.number().min(1).max(50),
 });
 
-const items = [
-  { id: 'item1', label: 'Item 1' },
-  { id: 'item2', label: 'Item 2' },
-  { id: 'item3', label: 'Item 3' },
+const formSchema = z.object({
+  timer: z.number().min(1, "Please select a timer value"),
+  subjects: z.array(subjectSchema).max(4, "You can select up to 4 subjects").default([]),
+});
+
+// All subject options for display
+const allSubjects = [
+  { id: 'Mathematics', label: 'Mathematics' },
+  { id: 'English', label: 'English' },
+  { id: 'Physics', label: 'Physics' },
+  { id: 'Chemistry', label: 'Chemistry' },
+  { id: 'Biology', label: 'Biology' },
+  { id: 'Computer', label: 'Computer' },
 ];
 
+// Simulate loading delay
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
 
 export default function Home() {
   const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       timer: 0,
-      items: [],
+      subjects: [],
     },
   });
+  const { setSubjects } = useQuestionBank();
 
- async function onSubmit(values: z.infer<typeof formSchema>) {
-    const { timer, items } = values;
-    
-     await sleep(1200);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const { timer, subjects } = values;
 
-    navigate("/exam", { state: { timer, items } });
-    console.log(values)
+    if (subjects.length > 4) {
+      toast.warning('You can select up to 4 subjects');
+      return;
+    }
+
+    setLoading(true);
+    setSubjects(subjects);  // Pass { name, count } array to context
+
+    await sleep(1200);
+    setLoading(false);
+
+    navigate("/exam", { state: { timer, subjects } });
     setSubmitted(true);
+    console.log(values);
   }
 
   return (
@@ -101,57 +122,86 @@ export default function Home() {
 
           <FormField
             control={form.control}
-            name="items"
-            render={() => (
-              <FormItem>
-                <div className="mb-4">
-                  <FormLabel className="text-base">Sidebar</FormLabel>
-                  <FormDescription>
-                    Select the items you want to display in the sidebar.
-                  </FormDescription>
-                </div>
-                {items.map((item) => (
-                  <FormField
-                    key={item.id}
-                    control={form.control}
-                    name="items"
-                    render={({ field }) => {
-                      return (
-                        <FormItem
-                          key={item.id}
-                          className="flex flex-row items-start space-x-3 space-y-0"
+            name="subjects"
+            render={({ field }) => {
+              const selectedSubjects = field.value || [];
+
+              const isSelected = (name: string) =>
+                selectedSubjects.some(s => s.name === name);
+
+              const getCount = (name: string) => {
+                const subj = selectedSubjects.find(s => s.name === name);
+                return subj ? subj.count : 10; // default count 10
+              };
+
+              const toggleSubject = (name: string, checked: boolean) => {
+                if (checked) {
+                  if (selectedSubjects.length >= 4) {
+                    toast.warning('You can select up to 4 subjects');
+                    return;
+                  }
+                  field.onChange([...selectedSubjects, { name, count: 10 }]);
+                } else {
+                  field.onChange(selectedSubjects.filter(s => s.name !== name));
+                }
+              };
+
+              const changeCount = (name: string, count: number) => {
+                const updated = selectedSubjects.map(s =>
+                  s.name === name ? { ...s, count } : s
+                );
+                field.onChange(updated);
+              };
+
+              return (
+                <FormItem>
+                  <FormLabel>Select Subjects and Number of Questions</FormLabel>
+                  <FormDescription>You can select up to 4 subjects</FormDescription>
+
+                  {allSubjects.map(subject => (
+                    <div key={subject.id} className="flex items-center space-x-3 mb-2">
+                      <Checkbox
+                        checked={isSelected(subject.label)}
+                        onCheckedChange={(checked) => toggleSubject(subject.label, Boolean(checked))}
+                      />
+                      <span className="flex-1">{subject.label}</span>
+
+                      {isSelected(subject.label) && (
+                        <Select
+                          value={String(getCount(subject.label))}
+                          onValueChange={(value) => changeCount(subject.label, Number(value))}
                         >
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value?.includes(item.id)}
-                              onCheckedChange={(checked) => {
-                                return checked
-                                  ? field.onChange([...field.value, item.id])
-                                  : field.onChange(
-                                      field.value?.filter(
-                                        (value) => value !== item.id
-                                      )
-                                    );
-                              }}
-                            />
-                          </FormControl>
-                          <FormLabel className="text-sm font-normal">
-                            {item.label}
-                          </FormLabel>
-                        </FormItem>
-                      );
-                    }}
-                  />
-                ))}
-              </FormItem>
-            )}
+                          <SelectTrigger className="w-20">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[5, 10, 15, 20, 25, 30].map(num => (
+                              <SelectItem key={num} value={String(num)}>
+                                {num}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </div>
+                  ))}
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
 
-          <Button type="submit">Submit</Button>
+          <Button type="submit" disabled={loading}>
+            {loading ? "Loading..." : "Submit"}
+          </Button>
         </form>
       </Form>
 
-      {submitted && <p className="text-green-600 font-medium">Form submitted successfully!</p>}
+      {submitted && (
+        <p className="text-green-600 font-medium">
+          Form submitted successfully!
+        </p>
+      )}
     </div>
   );
 }
